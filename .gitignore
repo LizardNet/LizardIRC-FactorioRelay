@@ -1,0 +1,14 @@
+#Ignore the target folder; we don't want jarfiles in the repo
+/target/
+
+#Ignore IDEA configuration
+*.iml
+.idea/
+
+#Ignore Eclipse configuration
+.classpath
+.project
+.settings/*
+
+#Ignore the dependency-reduced-pom.xml file created by maven-shade-plugin
+dependency-reduced-pom.xml
