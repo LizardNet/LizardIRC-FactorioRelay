@@ -94,7 +94,37 @@ public class FactorioRelay {
             .setCapEnabled(true) // Of course, the PircBotX documentation doesn't indicate this is necessary....
             .setAutoNickChange(true);
 
-        Listeners<PircBotX> listeners = new Listeners<>(confBuilder.getListenerManager(), properties);
+        String fifoFile = properties.getProperty("fifoPath");
+        String outfileFile = properties.getProperty("outfilePath");
+
+        if (fifoFile == null) {
+            throw new IllegalStateException("fifoPath option must be specified in the configuration file.");
+        }
+
+        if (outfileFile == null) {
+            throw new IllegalStateException("outfilePath must be specified in the configuration file.");
+        }
+
+        Path fifoPath = Paths.get(fifoFile);
+        Path outfilePath = Paths.get(outfileFile);
+
+        if (!Files.exists(fifoPath)) {
+            throw new IllegalStateException("The file specified by the fifoPath option does not seem to exist.");
+        }
+
+        if (!Files.isWritable(fifoPath)) {
+            throw new IllegalStateException("The file specified by the fifoPath option is not writable by the bot.");
+        }
+
+        if (!Files.exists(outfilePath)) {
+            throw new IllegalStateException("The file specified by the outfilePath option does not seem to exist.");
+        }
+
+        if (!Files.isReadable(outfilePath)) {
+            throw new IllegalStateException("The file specified by the outfilePath option is not readable by the bot.");
+        }
+
+        Listeners<PircBotX> listeners = new Listeners<>(confBuilder.getListenerManager(), properties, fifoPath, outfilePath);
         listeners.register();
 
         if (useTls) {

@@ -14,6 +14,12 @@ serverHost=
 # server.
 joinChannels=
 
+# fifoPath: String - Set this to the absolute path to the server.fifo file created by Factorio.
+fifoPath=
+
+# outfilePath: String - Set this to the absolute path to the server.out file (aka, the console log) created by Factorio.
+outfilePath=
+
 # OPTIONAL SETTINGS
 # If these values are not specified, hardcoded defaults (shown below) will be used instead.
 # Remember to uncomment the values if you wish to change them!

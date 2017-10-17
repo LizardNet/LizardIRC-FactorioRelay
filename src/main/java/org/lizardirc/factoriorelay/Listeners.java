@@ -1,5 +1,6 @@
 package org.lizardirc.factoriorelay;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,10 +21,14 @@ public class Listeners<T extends PircBotX> {
 
     private final ListenerManager<T> listenerManager;
     private final Properties properties;
+    private final Path fifoPath;
+    private final Path outfilePath;
 
-    public Listeners(ListenerManager<T> listenerManager, Properties properties) {
+    public Listeners(ListenerManager<T> listenerManager, Properties properties, Path fifoPath, Path outfilePath) {
         this.listenerManager = listenerManager;
         this.properties = properties;
+        this.fifoPath = fifoPath;
+        this.outfilePath = outfilePath;
     }
 
     public void register() {
@@ -37,6 +42,8 @@ public class Listeners<T extends PircBotX> {
         if (!modesOnConnect.isEmpty()) {
             ownListeners.add(new SetModesOnConnectListener<>(modesOnConnect));
         }
+
+        ownListeners.add(new IrcListener<>(fifoPath));
         ownListeners.forEach(listenerManager::addListener);
     }
 }
