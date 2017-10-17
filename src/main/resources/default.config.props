@@ -1,0 +1,76 @@
+# FactorioRelay configuration properties file
+# Please read this file carefully and modify as appropriate, as it controls the startup parameters of your bot.
+# Unless otherwise noted, all properties expect a single string value.
+
+# REQUIRED SETTINGS
+# You must specify these values, or the bot will explode on you at startup.
+
+# serverHost: String - Hostname of the IRC server to connect to.
+serverHost=
+
+# joinChannels: String - Set this to a list of comma-separated channels the bot should join.  The bot will attempt to
+# relay messages sent to the Factorio server to ALL of the channels in this list.  This may cause some lag if this is
+# more than two or three channels.  All messages sent to any of these channels will also be relayed to the Factorio
+# server.
+joinChannels=
+
+# OPTIONAL SETTINGS
+# If these values are not specified, hardcoded defaults (shown below) will be used instead.
+# Remember to uncomment the values if you wish to change them!
+
+# botName: String - Nickname the bot should attempt to use. Defaults to FactorioRelay.
+#botName=FactorioRelay
+
+# botUsername: String - The username (nick!username@host) the bot should use. Defaults to factorio.
+#botUsername=factorio
+
+# serverPassword: String - The password the bot should provide if connecting to a password-protected IRC server.  Most
+# IRC networks will not require this, so if in doubt, just leave this blank.  If blank (default), the bot will provide
+# no password on connection.
+#serverPassword=
+
+# useTls: Boolean - Set this to true if the bot should attempt to use an encrypted IRC connection (default)
+#useTls=true
+
+# verifyHostname: Boolean - Only effective if useTls is true. If verifyHostname is true (default), verify that the
+# name of the server on the presented certificate matches the serverHost property above.  Bot will abort connection if
+# the verification fails. IMPORTANT: This property does NOT control Java's own built-in certificate validation routines!
+#verifyHostname=true
+
+# allowedCertificates: String - Only effective if useTls is true. Set allowedCertificates to the hexadecimal MD5, SHA1,
+# SHA256, or SHA512 fingerprint of the certificate(s) you want to allow - non-matching certs will cause the bot to
+# abort connecting. Specify multiple fingerprints by separating then with commas. Leave blank to not perform this
+# certificate pinning (default).
+#allowedCertificates=
+
+# serverPort: Integer - Set this to the port the bot should use to connect to the IRC server. The default value depends
+# on the setting of useTls. If useTls is true, serverPort defaults to 6697; otherwise it defaults to 6667.
+#serverPort=
+
+# autoModes: String - The single-character mode flags the bot should attempt to set on itself after connecting. You can
+# mix additions and removals by using the standard format (e.g., "-ix+wB"). If blank (default), the bot will not
+# attempt to change its usermodes on connect.
+#autoModes=
+
+# autoReconnect: Boolean - If this is set to true (the default), the bot will automatically attempt to reconnect to
+# the server if it is disconnected by any other means than a "quit" command from an authorized user on IRC. Set this to
+# false to disable this behavior.
+#autoReconnect=true
+
+# fantasyString: String - Set this to the character (or string of characters) that will be expected to prefix commands
+# sent to an IRC channel. Currently the bot only has one command, "players", which lists the players currently online on
+# the server.  If you set this option to "?", for example, then one would issue the command in the channel as
+# "?players".  Note that this bot has no access control; anyone in any of the bot's joined channels can issue this
+# command, and commands may only be issued in-channel.
+#fantasyString=?
+
+# OPTIONAL SASL AUTHENTICATION CONFIGURATION
+# These values control whether the bot should attempt SASL authentication to an IRC network's services (usually either
+# NickServ or AuthServ). Both values are optional; however, both must be provided for the bot to attempt authentication.
+# Consult your IRC network's documentation if you aren't sure what to put here.
+
+# sasl.username: String - Usually the username of the NickServ/AuthServ account to attempt authentication as
+#sasl.username=
+
+# sasl.password: String - Usually the password of the NickServ/AuthServ account to attempt authentication as
+#sasl.password=
