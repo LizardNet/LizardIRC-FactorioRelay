@@ -120,7 +120,7 @@ public final class FactorioLogParser {
 
         matcher = PATTERN_ROCKET_LAUNCHED.matcher(message);
         if (matcher.matches()) {
-             return "[" + IrcColors.CYAN + "A rocket was launched!" + IrcColors.RESET + ']';
+             return "[" + IrcColors.GREEN + "A rocket was launched!" + IrcColors.RESET + ']';
         }
 
         throw new NoMatchException();
