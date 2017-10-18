@@ -55,7 +55,7 @@ public class OutfileWatcher<T extends PircBotX> implements Runnable {
     private final Path path;
     private volatile boolean interrupted = false;
 
-    private long lastSize = 0;
+    private long readStartPosition = 0;
 
     public OutfileWatcher(FactorioListener<T> parent, Path outfilePath) {
         this.parent = Objects.requireNonNull(parent);
@@ -65,9 +65,9 @@ public class OutfileWatcher<T extends PircBotX> implements Runnable {
     @Override
     public void run() {
         try (final WatchService watchService = path.getFileSystem().newWatchService()) {
-            lastSize = Files.size(path);
+            readStartPosition = Files.size(path);
             path.getParent().register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-            //noinspection InfiniteLoopStatement
+
             while (!interrupted) {
                 WatchKey wk = watchService.take();
                 for (WatchEvent<?> event : wk.pollEvents()) {
@@ -104,17 +104,16 @@ public class OutfileWatcher<T extends PircBotX> implements Runnable {
 
         // None of the nio solutions are as clean as this, unfortunately
         try (final RandomAccessFile outfile = new RandomAccessFile(path.toFile(), "r")) {
-            outfile.seek(lastSize);
+            outfile.seek(readStartPosition);
             while (true) {
                 String buffer = outfile.readLine();
                 if (buffer == null) {
+                    readStartPosition = outfile.getFilePointer();
                     break;
                 } else {
                     retval.add(buffer);
                 }
             }
-
-            lastSize = Files.size(path);
         } catch (IOException e) {
             System.out.println("Exception occurred in OutfileWatcher while attempting to get lines from the outfile: " + e.toString());
             e.printStackTrace();

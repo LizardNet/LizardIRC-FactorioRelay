@@ -44,9 +44,9 @@ import org.lizardirc.beancounter.utils.IrcColors;
 
 public final class FactorioLogParser {
     private static final String REGEX_TIMESTAMP = "[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}";
-    private static final String REGEX_JOIN = "\\[JOIN\\] ([^ ]+) joined the game";
-    private static final String REGEX_LEAVE = "\\[LEAVE\\] ([^ ]+) left the game";
-    private static final String REGEX_CHAT = "\\[CHAT\\] ([^ ]+): (.*)$";
+    private static final String REGEX_JOIN = "\\[JOIN] ([^ ]+) joined the game";
+    private static final String REGEX_LEAVE = "\\[LEAVE] ([^ ]+) left the game";
+    private static final String REGEX_CHAT = "\\[CHAT] ([^ ]+): (.*)$";
     private static final String REGEX_RESEARCH_START = "mlogger: Started research of \"([^\"]+)\"";
     private static final String REGEX_RESEARCH_FINISH = "mlogger: Research finished for \"([^\"]+)\"";
     private static final String REGEX_PLAYER_RIP = "mlogger: Player ([^ ]+) died(?: due to (.*))?$";
@@ -126,6 +126,7 @@ public final class FactorioLogParser {
         throw new NoMatchException();
     }
 
+    @SuppressWarnings("unused")
     public static class NoMatchException extends Exception {
         public NoMatchException() {
             super();
