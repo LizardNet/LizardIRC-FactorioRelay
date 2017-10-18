@@ -47,6 +47,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -124,7 +126,7 @@ public class FactorioRelay {
             throw new IllegalStateException("The file specified by the outfilePath option is not readable by the bot.");
         }
 
-        Listeners<PircBotX> listeners = new Listeners<>(confBuilder.getListenerManager(), properties, fifoPath, outfilePath);
+        Listeners<PircBotX> listeners = new Listeners<>(confBuilder.getListenerManager(), properties, fifoPath, outfilePath, constructScheduledExecutorService());
         listeners.register();
 
         if (useTls) {
@@ -240,5 +242,13 @@ public class FactorioRelay {
         ThreadPoolExecutor ret = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(), factory);
         ret.allowCoreThreadTimeOut(true);
         return ret;
+    }
+
+    private ScheduledExecutorService constructScheduledExecutorService() {
+        BasicThreadFactory factory = new BasicThreadFactory.Builder()
+            .namingPattern("scheduledExecutorPool-thread%d")
+            .daemon(true)
+            .build();
+        return Executors.newScheduledThreadPool(1, factory); // This seems like it should be enough for the reasonable future
     }
 }

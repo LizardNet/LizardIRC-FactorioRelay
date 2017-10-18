@@ -37,53 +37,65 @@
 package org.lizardirc.factoriorelay;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import org.lizardirc.beancounter.SetModesOnConnectListener;
-import org.lizardirc.beancounter.hooks.CommandHandler;
-import org.lizardirc.beancounter.hooks.CommandListener;
-import org.lizardirc.beancounter.hooks.Fantasy;
-import org.lizardirc.beancounter.hooks.MultiCommandHandler;
 import org.pircbotx.PircBotX;
-import org.pircbotx.hooks.Listener;
-import org.pircbotx.hooks.managers.ListenerManager;
+import org.pircbotx.hooks.ListenerAdapter;
+import org.pircbotx.hooks.events.ConnectEvent;
 
-public class Listeners<T extends PircBotX> {
-    private final Set<Listener<T>> ownListeners = new HashSet<>();
-
-    private final ListenerManager<T> listenerManager;
-    private final Properties properties;
-    private final Path fifoPath;
+public class FactorioListener<T extends PircBotX> extends ListenerAdapter<T> {
     private final Path outfilePath;
     private final ScheduledExecutorService ses;
 
-    public Listeners(ListenerManager<T> listenerManager, Properties properties, Path fifoPath, Path outfilePath, ScheduledExecutorService ses) {
-        this.listenerManager = listenerManager;
-        this.properties = properties;
-        this.fifoPath = fifoPath;
-        this.outfilePath = outfilePath;
-        this.ses = ses;
+    private T bot;
+    private OutfileWatcher watcher = null;
+    private Thread watcherThread = null;
+
+    public FactorioListener(Path outfilePath, ScheduledExecutorService ses) {
+        this.outfilePath = Objects.requireNonNull(outfilePath);
+        this.ses = Objects.requireNonNull(ses);
     }
 
-    public void register() {
-        String fantasyString = properties.getProperty("fantasyString", "?");
-        String modesOnConnect = properties.getProperty("autoModes", "");
+    @Override
+    public void onConnect(ConnectEvent<T> event) throws Exception {
+        bot = event.getBot();
+        startWatcherThread();
+    }
 
-        List<CommandHandler<T>> handlers = new ArrayList<>();
+    private void startWatcherThread() {
+        watcher = new OutfileWatcher<>(this, outfilePath);
+        watcherThread = new Thread(watcher);
+        watcherThread.setDaemon(true);
+        watcherThread.start();
 
-        MultiCommandHandler<T> commands = new MultiCommandHandler<>(handlers);
-        ownListeners.add(new Fantasy<>(new CommandListener<>(commands), fantasyString));
-        if (!modesOnConnect.isEmpty()) {
-            ownListeners.add(new SetModesOnConnectListener<>(modesOnConnect));
+        System.err.println("Started outfile watcher thread");
+    }
+
+    void signalError() {
+        System.err.println("An error occurred in the outfile watcher thread; scheduling a restart in 1 minute.");
+
+        watcher.interrupt();
+        watcherThread.interrupt();
+        watcher = null;
+        watcherThread = null;
+        ses.schedule(this::startWatcherThread, 1L, TimeUnit.MINUTES);
+    }
+
+    void processLogLines(List<String> lines) {
+        for (String line : lines) {
+            try {
+                sendTextToAllChannels(FactorioLogParser.logToIrcMessage(line));
+            } catch (FactorioLogParser.NoMatchException e) {
+                // Go nowhere, do nothing
+            }
         }
+    }
 
-        ownListeners.add(new IrcListener<>(fifoPath));
-        ownListeners.add(new FactorioListener<>(outfilePath, ses));
-        ownListeners.forEach(listenerManager::addListener);
+    private void sendTextToAllChannels(String text) {
+        bot.getUserBot().getChannels()
+            .forEach(ch -> ch.send().message(text));
     }
 }
