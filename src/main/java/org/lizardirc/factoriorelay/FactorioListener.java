@@ -62,7 +62,10 @@ public class FactorioListener<T extends PircBotX> extends ListenerAdapter<T> {
     @Override
     public void onConnect(ConnectEvent<T> event) throws Exception {
         bot = event.getBot();
-        startWatcherThread();
+
+        if (watcherThread == null || !watcherThread.isAlive()) {
+            startWatcherThread();
+        }
     }
 
     private void startWatcherThread() {
